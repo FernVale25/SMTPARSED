@@ -1,0 +1,1 @@
+(def F (normalize 'level 1 (smtlib-load 'clear "atan-vega-3-chunk-0513.smt2"  )))    (box-solve F) 

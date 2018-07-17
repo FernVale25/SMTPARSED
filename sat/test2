@@ -1,0 +1,1 @@
+(def F (normalize 'level 1 (smtlib-load 'clear "matrix-1-all-25.smt2"  ))) (box-solve F) 
