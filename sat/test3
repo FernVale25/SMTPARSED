@@ -1,0 +1,1 @@
+(bbwb 'verbose (normalize 'level 1 [skoY >= 0 /\ skoY skoX - 1 <= 0 /\ skoX < 0 /\ skoZ > 0 /\ skoX + 1 > 0 /\ skoY - 1 < 0 /\ skoX - skoY < 0 /\ skoY skoX skoZ - skoZ - skoX - skoY <= 0]))

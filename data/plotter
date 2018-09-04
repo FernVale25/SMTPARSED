@@ -1,0 +1,30 @@
+set terminal pdf
+set output 'unsat.pdf'
+
+set xlabel "time"
+
+set autoscale
+
+set ylabel "number solved"
+
+set title "Unsat Files"
+
+set style data linespoints
+
+plot "gnuUnsatCad.txt" using 1:2 title "QEPCAD", \
+     "gnuUnsatSimp.txt" using 1:2 title "QEPCAD + BBWB"
+
+
+set output 'sat.pdf'
+set title "Sat Files"
+plot "gnuSatCad.txt" using 1:2 title "QEPCAD", \
+     "gnuSatSimp.txt" using 1:2 title "QEPCAD + BBWB"
+
+
+set output 'satZoomed.pdf'
+
+set xrange [400:900]
+set yrange [4000:4500]
+
+plot "gnuSatCad.txt" using 1:2 title "QEPCAD", \
+     "gnuSatSimp.txt" using 1:2 title "QEPCAD + BBWB"

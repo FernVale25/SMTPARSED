@@ -1,19 +1,22 @@
 import subprocess
 import sys
 import os
+import timeit
 
 
 
-
-
+f = open("results.txt","w+")
+subprocess.Popen(['rm', 'simp.txt'])
 ls = subprocess.Popen(['ls'], stdout=subprocess.PIPE)
 grep = subprocess.check_output(['grep', '.smt2'], stdin=ls.stdout)
 grep = grep.split()
 for l in grep:
-    command = "(def F (normalize 'level 1 (smtlib-load 'clear \"" + l + "\"  ))) (box-solve F)"
+    command = "(def F (smtlib-load 'clear \"" + l + "\"  )) (box-solve F)"
     print "echo \"(def F (normalize 'level 1 (smtlib-load 'clear \\\"" + l + "\\\"  ))) (box-solve F) \" | tarski"
     try:
+
         echo = subprocess.Popen(['echo', command], stdout=subprocess.PIPE)
+        
         output = subprocess.check_output(['tarski'], stdin=echo.stdout)
         echo.wait()
         if "SATISFIABLE" in output:
@@ -34,6 +37,8 @@ for l in grep:
         os.system('play --no-show-progress --null --channels 1 synth %s sine %f' % (duration, freq))
         sys.exit(0)
 
+
+f.close()
 duration = 1  # second
 freq = 440  # Hz
 os.system('play --no-show-progress --null --channels 1 synth %s sine %f' % (duration, freq))

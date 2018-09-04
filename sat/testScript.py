@@ -10,7 +10,7 @@ ls = subprocess.Popen(['ls'], stdout=subprocess.PIPE)
 grep = subprocess.check_output(['grep', '.smt2'], stdin=ls.stdout)
 grep = grep.split()
 for l in grep:
-    command = "(def F (normalize 'level 1 (smtlib-load 'clear \"" + l + "\"  ))) (box-solve F)"
+    command = "(def F (smtlib-load 'clear \"" + l + "\"  )) (box-solve F)"
     print "echo \"(def F (normalize 'level 1 (smtlib-load 'clear \\\"" + l + "\\\"  ))) (box-solve F) \" | tarski"
     try:
         echo = subprocess.Popen(['echo', command], stdout=subprocess.PIPE)
@@ -21,7 +21,7 @@ for l in grep:
             sys.exit(0)
         elif "time" in output.lower():
             print "TIMEOUT ON " + l
-            subprocess.Popen(['mv', l, 'timeouts/' + l])
+            #subprocess.Popen(['mv', l, 'timeouts/' + l])
         elif ":err" in output:
             print "ERROR ON " + l
             print output
