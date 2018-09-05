@@ -1,0 +1,10 @@
+README for Fernando's SMT Solver stuff
+
+1. Steps to the current solver that have to be kept in mind
+   to understand or explain the process
+
+   a. When a formula is translated to propositions, boolean variable
+      k stands for "p \sigma 0 is required".  Thus, ~k does not
+      mean "p \sigma 0 is false", rather it means "p \sigma 0
+      is not required to be true".
+
