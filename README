@@ -71,4 +71,17 @@ README for Fernando's SMT Solver stuff
       but I have not attempted! Note that if you use STL containers of Minisat::vec, any method which
       contains a copy will not compile!
 
-   h. 
+   h.
+
+3. Simplication
+
+   - log all deductions made by the deduction manager
+   - form F, a conjunction of all deductions (e.g. all rules like 7 /\ 3 /\ 9 => 14) as clauses
+   - sort all known atoms from most desirable to least using hueristic function scoreDed from deduction.cpp
+   - S = { any givens that never appear as the result of deductions }, and L = the above list - S
+     while L not empty
+       A = last element of L (and remove it from L)
+       test whether A is deriavable from S + L (using MiniSAT to test this)
+       if not, then add A to S, otherwise remove from F all clauses that refer to A
+     simplified formula is the conjunction of the elements of S
+
