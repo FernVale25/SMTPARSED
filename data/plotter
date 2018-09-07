@@ -26,5 +26,5 @@ set output 'satZoomed.pdf'
 set xrange [400:900]
 set yrange [4000:4500]
 
-plot "gnuSatCad.txt" using 1:2 title "QEPCAD", \
-     "gnuSatSimp.txt" using 1:2 title "QEPCAD + BBWB"
+plot "spureqepdata.txt" using 1:2 title "QEPCAD", \
+      "sboxdata.txt" using 1:2 title "QEPCAD + BBWB"

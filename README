@@ -24,7 +24,8 @@ README for Fernando's SMT Solver stuff
       -We get the clause /3, 4, 8, ~7/ representing the disjunct
       -We get the clause /5, ~8/ and /6, ~8/ representing the small conjunction
 
-   c. BlackBox and WhiteBox algorithms are dynamic. Substitution is not
+   c. BlackBox and WhiteBox algorithms are incremental. Substitution is not
+      -Every 5 assignments, BB/WB is called, also...
 
    d. the partial solver is called every time we get a complete solution from MINISAT, after
       the minhitset code is called to get a reduced size formula ***************************
@@ -62,9 +63,6 @@ README for Fernando's SMT Solver stuff
       the data type lbool, which has 3 values. lTrue = 0, lFalse = 1, lUndef = 2. Therefore, in
       order to construct a literal with a true value, we must construct it with something like
       Lit l(value, false).
-
-   f. Minisat reserves the integer 0, so if you use a 0 indexing system, then you must increment by one
-      when transferring to Minisat format.
 
    g. Minisat vectors (Minisat::vec) have disabled the copy constructor. I have not attempted to enable
       it. With C++11 move constructors, you could probably enable these and have an efficient copy/move,

@@ -31,8 +31,6 @@ int main(int argc, char** argv)
     else
       cerr << "Rejecting " << next << endl;
   }
-  cerr << "Count is " << count << endl;
-  cerr << "V size is " << V.size() << endl;
   sort(V.begin(),V.end());
 
   int n = 0;
