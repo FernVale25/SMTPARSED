@@ -1,0 +1,142 @@
+import subprocess
+import sys
+import argparse
+import re
+import glob
+import os
+parser = argparse.ArgumentParser(description="Run SMT tests from Tarski. Options include \
+box-solve, qepcad-sat, and qep-solve. All unsolvable files will \
+be softlinked into the relevant subdirectory for future tests.")
+tgroup = parser.add_mutually_exclusive_group(required=True)
+sgroup = parser.add_mutually_exclusive_group(required=True)
+tgroup.add_argument(
+    "--boxsolve",
+    "-b",
+    help="Test box-solve",
+    action="store_true")
+tgroup.add_argument(
+    "--qepcadsat",
+    "-q",
+    help="test qepcad-sat",
+    action="store_true")
+tgroup.add_argument(
+    "--qepsolve",
+    "-m",
+    help="test qep-solve",
+    action="store_true")
+tgroup.add_argument("--z3", "-z", help="test z3", action="store_true")
+sgroup.add_argument(
+    "--sat",
+    "-s",
+    help="test satisfiable files",
+    action="store_true")
+sgroup.add_argument(
+    "--unsat",
+    "-u",
+    help="test unsatisfiable files",
+    action="store_true")
+parser.add_argument(
+    "--reset",
+    "-r",
+    help="Clear the saved unsolvable files and test on every file",
+    action="store_true",
+    default=False)
+
+args = parser.parse_args()
+comm = ""
+fPlot = ""
+fileToWrite = ""
+subdir = ""
+prefix = ""
+prefix2 = ""
+term = "\"))"
+
+if args.unsat:
+    prefix = "unsat/"
+    prefix2 = "u"
+else:
+    prefix = "sat/"
+    prefix2 = "s"
+if args.boxsolve:
+    comm = "(box-solve 'time (smtlib-load 'clear \""
+    fPlot = 'data/' + prefix2 + 'boxdata.txt'
+    fileToWrite = prefix2 + "boxtime.txt"
+    subdir = prefix + "simptimeouts"
+elif args.qepcadsat:
+    comm = "(qepcad-sat 'time (smtlib-load 'clear \""
+    fplot = 'data/' + prefix2 + 'pureqepdata.txt'
+    fileToWrite = prefix2 + "pureqep.txt"
+    subdir = prefix + "cadtimeouts"
+elif args.qepsolve:
+    comm = "(qep-solve 'time (smtlib-load 'clear \""
+    fPlot = 'data/' + prefix2 + 'qepsmtdata.txt'
+    fileToWrite = prefix2 + "qepsolve.txt"
+    subdir = prefix + "qetimeouts"
+else:
+    print "command not yet implemented!"
+    sys.exit(0)
+
+if args.reset:
+    allfiles = glob.glob(subdir + '/*')
+    for f in allfiles:
+        os.remove(f)
+
+
+
+ls = subprocess.Popen(['ls', prefix], stdout=subprocess.PIPE)
+ls2 = subprocess.check_output(['ls', subdir])
+ls2 = ls2.splitlines()
+grep = subprocess.check_output(['grep', '.smt2'], stdin=ls.stdout)
+grep = grep.split()
+f = open(fileToWrite, "w+")
+tmp = open('tmp', "w+")
+for l in grep:
+    if l in ls2:
+        continue
+    command = comm + prefix + l + term
+    try:
+        echo = subprocess.Popen(['echo', command], stdout=subprocess.PIPE)
+        output = subprocess.check_output(['tarski'], stdin=echo.stdout)
+        echo.wait()
+        if args.sat and "UNSAT" in output:
+            print "INCORRECT ON " + prefix + l
+            sys.exit(0)
+        elif args.unsat and "SATISFIABLE" in output:
+            print "INCORRECT ON " + prefix + l
+            sys.exit(0)
+        elif "fail" in output.lower() or "timeout" in output.lower():
+            print "Qepcad Failure: " + l
+            subprocess.Popen(['ln', '-s', l, subdir + '/' + l])
+        elif ":err" in output:
+            print "ERROR: " + l
+            print output
+            sys.exit(0)
+        else:
+            output = output.splitlines()
+            matches = re.findall('\"(.+?)\"', output[-2])
+            print l + ": " + matches[1]
+            f.write(l + ": " + matches[1] + "\n")
+            tmp.write(matches[1] + "\n")
+    except subprocess.CalledProcessError as e:
+        # return code 6 indicates qepcad memory error
+        if e.returncode == 6:
+            print "Qepcad Failure: " + l
+            subprocess.Popen(['ln', '-s', l, subdir + '/' + l])
+        else:
+            print e
+            duration = 2
+            freq = 600
+            print "fail " + l
+            sys.exit(0)
+
+subprocess.Popen(['mv', 'tmp', 'data/tmp'])
+cat = subprocess.Popen(['cat', 'data/tmp'], stdout=subprocess.PIPE)
+sort = subprocess.check_output(['data/producePlotValues'], stdin=cat.stdout)
+cat.wait()
+f2 = open(fPlot, 'w+')
+f2.write(sort + "\n")
+f2.close()
+subprocess.Popen(['rm', 'data/tmp'])
+
+# Once you have run this script, you can run "gnuplot plotter" to see the
+# results!

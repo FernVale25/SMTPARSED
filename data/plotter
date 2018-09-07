@@ -11,14 +11,14 @@ set title "Unsat Files"
 
 set style data linespoints
 
-plot "gnuUnsatCad.txt" using 1:2 title "QEPCAD", \
-     "gnuUnsatSimp.txt" using 1:2 title "QEPCAD + BBWB"
+plot "upureqepdata.txt" using 1:2 title "QEPCAD", \
+     "uboxdata.txt" using 1:2 title "QEPCAD + BBWB"
 
 
 set output 'sat.pdf'
 set title "Sat Files"
-plot "gnuSatCad.txt" using 1:2 title "QEPCAD", \
-     "gnuSatSimp.txt" using 1:2 title "QEPCAD + BBWB"
+plot "spureqepdata.txt" using 1:2 title "QEPCAD", \
+     "sboxdata.txt" using 1:2 title "QEPCAD + BBWB"
 
 
 set output 'satZoomed.pdf'

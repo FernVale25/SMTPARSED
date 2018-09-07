@@ -8,3 +8,67 @@ README for Fernando's SMT Solver stuff
       mean "p \sigma 0 is false", rather it means "p \sigma 0
       is not required to be true".
 
+   b. Formulas are translated by:
+      -If the top level is a conjunction, then all atoms are assigned a variable
+       and pushed onto the SAT solver stack
+      -If the top level is a disjunction, then all atoms are assigned a variable
+       and given a single clause
+      -All sub conjuncts/disjuncts are assigned a variable. In the level above,
+       the sub conj/disj is assigned a value of true. In the clause which
+       describes them, the variable representing the conj/disj is set to false,
+       and then all atoms/subformulas are set to true
+      -Consider x > 3 /\ y < 0 /\ [x < 2 \/ z > 3 \/ [y > 0 /\ y < 0]]
+                 1         2         3        4         5        6
+      -The disjunction is assigned the variable 7, the small conjunction is assigned 8
+      -1, 2, and 7 are pushed directly onto the stack with true values
+      -We get the clause /3, 4, 8, ~7/ representing the disjunct
+      -We get the clause /5, ~8/ and /6, ~8/ representing the small conjunction
+
+   c. BlackBox and WhiteBox algorithms are dynamic. Substitution is not
+
+   d. the partial solver is called every time we get a complete solution from MINISAT, after
+      the minhitset code is called to get a reduced size formula ***************************
+
+   e. We use the partial solver to get a simplified formula every time we call QEPCAD/NUCAD
+
+   f. L1Normalization is done when the SMT Solver is constructed
+
+   g. Clause splitting is only done if the size of the resulting formula would be < 51 atoms,
+      which is checked after l1 normalization. This is to prevent SACLIB from blowing its
+      allocated memory
+
+   h. We do not follow the SMT paradigm if the final formula is a pure conjunction. This is because
+      the result we would get from Minisat is obvious. Instead, we just use the two theory solvers.
+      We still do simplification!
+
+2. Other implementation details that are important to know
+
+   a. Solver-Managers support both incremental and batch algorithms. To use it as a batch algorithm,
+      use the TAndRef that is given as a parameter to the "deduce" method in the Partial Solver interface.
+      To use as an incremental algorithm, use the "update" method instead and ignore the TAndRef.
+
+   b. The partial solver assumes the formula has been L1 normalized. This is done from the SMTSolver or the
+      BBWB command. Therefore, ALL DEDUCTIONS MUST ALSO BE OF L1 NORMALIZED FORM.
+
+   c. Simplication is done whenever there is a cycle in the deduction graph. Therefore, if some atom A
+      is simplified to a constant and should be simplified out of the formula, we still need to
+      set up a cycle where A => constant, and constant => A.
+
+   d. The deduction manager throws an exception whenever it finds a dependency which is not already in
+      the deduction graph. Therefore, the ordering of deductions is important! If deduction a =>
+      deduction b => deduction c, the deduction manager must receive them in the order a, b, c
+
+   e. Minisat Literals (Minisat::Lit) are constructed with a boolean value. However, Minisat uses
+      the data type lbool, which has 3 values. lTrue = 0, lFalse = 1, lUndef = 2. Therefore, in
+      order to construct a literal with a true value, we must construct it with something like
+      Lit l(value, false).
+
+   f. Minisat reserves the integer 0, so if you use a 0 indexing system, then you must increment by one
+      when transferring to Minisat format.
+
+   g. Minisat vectors (Minisat::vec) have disabled the copy constructor. I have not attempted to enable
+      it. With C++11 move constructors, you could probably enable these and have an efficient copy/move,
+      but I have not attempted! Note that if you use STL containers of Minisat::vec, any method which
+      contains a copy will not compile!
+
+   h. 

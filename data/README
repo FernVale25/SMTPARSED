@@ -1,0 +1,13 @@
+KEY:
+
+0 - Dynamic BlackBox/WhiteBox
+1 - Dynamic BlackBox/WhiteBox with substitution
+2 - Dynamic BlackBox/WhiteBox with clause splitting, substitution, and NUCAD
+
+
+
+To create a new test set:
+cut -d ":" -f2 [file] | sed 's/\"//g' | tr -d "[:blank:]" | ./producePlotValues > [fileout]
+gnuplot plotter
+
+[fileout] should be named gnuSatSimp.txt gnuUnsatSimp.txt, gnuUnsatCad.txt, or gnuSatCad.txt
